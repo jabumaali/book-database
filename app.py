@@ -4,6 +4,7 @@ import csv
 import time
 
 def menu():
+    first = True
     while True:
         print("""
               \n PROGRAMMING BOOKS
@@ -12,7 +13,11 @@ def menu():
               \r  3) Search For Book
               \r  4) Book Analysis
               \r  5) Exit Program""")
-        choice = input(' What would like to do? ')
+        if first == True:
+            choice = input(' What would like to do? ')
+            first = False
+        else:
+            choice = input(' What would like to do next? ')
         if choice in ['1', '2', '3', '4', '5']:
             return choice
         else:
@@ -88,10 +93,12 @@ def app():
             session.commit()
             print('Book added!')
             time.sleep(1.0)
-            
+
         elif choice == '2':
-            #View book
-            pass
+            print('\n')
+            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format('Id','Title','Author','Published','Price'))
+            for book in session.query(Book):
+                print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(book.id, book.title,book.author, book.published_date.strftime("%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
         elif choice == '3':
             #Search
             pass
@@ -107,5 +114,5 @@ if __name__ == '__main__':
     add_csv()
     app()
 
-    for book in session.query(Book):
-        print(book)
+    # for book in session.query(Book):
+    #     print(book)
