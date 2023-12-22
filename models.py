@@ -23,6 +23,5 @@ class Book(Base):
         return f'Title: {self.title}, Author: {self.author}, Published: {self.published_date}, Price: {self.price}'
 
 
-# Create a database (books.db)
 # Create a model
 # title, author, date published, price
