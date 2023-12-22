@@ -3,6 +3,21 @@ import datetime
 import csv
 import time
 
+def add_csv():
+    with open('suggested_books.csv') as csvfile:
+        data = csv.reader(csvfile)
+        for row in data:
+            book_in_db = session.query(Book).filter(Book.title==row[0]).one_or_none()
+            if book_in_db == None:
+                print(row)
+                title = row[0]
+                author = row[1]
+                date = clean_date(row[2])
+                price = clean_price(row[3])
+                new_book = Book(title=title, author=author, published_date=date, price=price)
+                session.add(new_book)
+        session.commit()
+
 def menu():
     first = True
     while True:
@@ -52,21 +67,14 @@ def clean_price(price_str):
     else:
         return final_price
 
-def add_csv():
-    with open('suggested_books.csv') as csvfile:
-        data = csv.reader(csvfile)
-        for row in data:
-            book_in_db = session.query(Book).filter(Book.title==row[0]).one_or_none()
-            if book_in_db == None:
-                print(row)
-                title = row[0]
-                author = row[1]
-                date = clean_date(row[2])
-                price = clean_price(row[3])
-                new_book = Book(title=title, author=author, published_date=date, price=price)
-                session.add(new_book)
-        session.commit()
-
+def view_books():
+    print('\n')
+    print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+        'Id','Title','Author','Published','Price'))
+    for book in session.query(Book):
+        print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+            book.id, book.title,book.author, book.published_date.strftime(
+                "%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
 
 
 def app():
@@ -93,15 +101,31 @@ def app():
             session.commit()
             print('Book added!')
             time.sleep(1.0)
-
+        
         elif choice == '2':
-            print('\n')
-            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format('Id','Title','Author','Published','Price'))
-            for book in session.query(Book):
-                print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(book.id, book.title,book.author, book.published_date.strftime("%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
+            view_books()
+        
         elif choice == '3':
-            #Search
-            pass
+            id_options = []
+            for book in session.query(Book):
+                id_options.append(book.id)
+            print(f'Your options are {id_options}.')
+            try:
+                id_choice = int(input('Please select your book ID: '))
+            except (ValueError, ):
+                print('Error: Please enter a valid book ID.')
+            else:
+                if id_choice in id_options:
+                    for book in session.query(Book):
+                        if id_choice == book.id:
+                            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                                'Id','Title','Author','Published','Price'))
+                            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                                book.id, book.title,book.author, book.published_date.strftime(
+                                    "%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
+                else:
+                    print('Error: Please enter a valid book ID.')
+
         elif choice == '4':
             #Analysis
             pass
