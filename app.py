@@ -116,13 +116,12 @@ def app():
                 print('Error: Please enter a valid book ID.')
             else:
                 if id_choice in id_options:
-                    for book in session.query(Book):
-                        if id_choice == book.id:
-                            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
-                                'Id','Title','Author','Published','Price'))
-                            print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
-                                book.id, book.title,book.author, book.published_date.strftime(
-                                    "%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
+                    the_book = session.query(Book).filter(Book.id==id_choice).first()
+                    print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                            'Id','Title','Author','Published','Price'))
+                    print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                            the_book.id, the_book.title, the_book.author, the_book.published_date.strftime(
+                            "%b %d, %Y"), "$"+str(round(float(the_book.price/100),2))))
                 else:
                     print('Error: Please enter a valid book ID.')
 
