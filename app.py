@@ -19,25 +19,56 @@ def add_csv():
         session.commit()
 
 def menu():
-    first = True
     while True:
         print("""
-              \n PROGRAMMING BOOKS
-              \r  1) Add Book
-              \r  2) View All Books
-              \r  3) Search For Book
-              \r  4) Book Analysis
-              \r  5) Exit Program""")
-        if first == True:
-            choice = input(' What would like to do? ')
-            first = False
-        else:
-            choice = input(' What would like to do next? ')
+              \nPROGRAMMING BOOKS
+              \r1) Add Book
+              \r2) View All Books
+              \r3) Search For Book
+              \r4) Book Analysis
+              \r5) Exit Program""")
+        choice = input('What would like to do? ')
         if choice in ['1', '2', '3', '4', '5']:
             return choice
         else:
             print('\n Please choose one of the options above.')
 
+def submenu():
+    while True:
+        print("""
+              \n1) Edit
+              \r2) Delete
+              \r3) Return to Main Menu
+              """)
+        choice = input('What would like to do? ')
+        if choice in ['1', '2', '3']:
+            return choice
+        else:
+            print('\n Please choose one of the options above.')
+
+def edit_check(column_name, current_value):
+    print(f'\n**** EDIT {column_name} ****')
+    if column_name == 'Price':
+        print(f'\rCurrent Value: {current_value/100}')
+    elif column_name == 'Date':
+        print(f'\rCurrent Value: {current_value.strftime("%b %d, %Y")}')
+    else:
+        print(f'\rCurrent Value: {current_value}')
+    
+    if column_name == 'Date' or column_name == 'Price':
+        while True:
+            changes = input('What would you like to change the value to? ')
+            if column_name == 'Date':
+                changes = clean_date(changes)
+                if type(changes) == datetime.date:
+                    return changes
+            elif column_name == 'Price':
+                changes = clean_price(changes)
+                if type(changes) == int:
+                    return changes
+    else:
+        return input('What would you like to change the value to? ')
+    return
 
 def clean_date(date_str):
     months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -112,7 +143,7 @@ def app():
             print(f'Your options are {id_options}.')
             try:
                 id_choice = int(input('Please select your book ID: '))
-            except (ValueError, ):
+            except ValueError:
                 print('Error: Please enter a valid book ID.')
             else:
                 if id_choice in id_options:
@@ -124,7 +155,20 @@ def app():
                             "%b %d, %Y"), "$"+str(round(float(the_book.price/100),2))))
                 else:
                     print('Error: Please enter a valid book ID.')
-
+            sub_choice = submenu()
+            if sub_choice == '1':
+                the_book.title = edit_check('Title', the_book.title)
+                the_book.author = edit_check('Author', the_book.author)
+                the_book.published_date = edit_check('Date', the_book.published_date)
+                the_book.price = edit_check('Price', the_book.price)
+                session.commit()
+                print('Book updated!')
+                time.sleep(1.5)
+            elif sub_choice == '2':
+                session.delete(the_book)
+                session.commit()
+                print('Book deleted!')
+                time.sleep(1.5)
         elif choice == '4':
             #Analysis
             pass
