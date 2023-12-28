@@ -98,11 +98,11 @@ def clean_price(price_str):
     else:
         return final_price
 
-def view_books():
+def view_books(like_this):
     print('\n')
     print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
         'Id','Title','Author','Published','Price'))
-    for book in session.query(Book):
+    for book in session.query(Book).filter(Book.title.like(like_this)):
         print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
             book.id, book.title,book.author, book.published_date.strftime(
                 "%b %d, %Y"), "$"+str(round(float(book.price/100),2))))
@@ -134,46 +134,70 @@ def app():
             time.sleep(1.0)
         
         elif choice == '2':
-            view_books()
+            view_books("%")
         
         elif choice == '3':
-            id_options = []
-            for book in session.query(Book):
-                id_options.append(book.id)
-            print(f'Your options are {id_options}.')
-            try:
-                id_choice = int(input('Please select your book ID: '))
-            except ValueError:
-                print('Error: Please enter a valid book ID.')
-            else:
-                if id_choice in id_options:
-                    the_book = session.query(Book).filter(Book.id==id_choice).first()
-                    print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
-                            'Id','Title','Author','Published','Price'))
-                    print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
-                            the_book.id, the_book.title, the_book.author, the_book.published_date.strftime(
-                            "%b %d, %Y"), "$"+str(round(float(the_book.price/100),2))))
-                else:
+            # ####### Search by KEYWORD using view_books(input)
+            # ####### else id_options search by id.
+            print("""\nHow would you like to search?
+              \n1) By ID
+              \r2) By keyword
+              \r3) Return to Main Menu\n
+              """)
+            choice = input('What would like to do? ')
+            if choice == "1":
+                id_options = []
+                for book in session.query(Book):
+                    id_options.append(book.id)
+                print(f'Your options are {id_options}.')
+                try:
+                    id_choice = int(input('Please select your book ID: '))
+                except ValueError:
                     print('Error: Please enter a valid book ID.')
-            sub_choice = submenu()
-            if sub_choice == '1':
-                the_book.title = edit_check('Title', the_book.title)
-                the_book.author = edit_check('Author', the_book.author)
-                the_book.published_date = edit_check('Date', the_book.published_date)
-                the_book.price = edit_check('Price', the_book.price)
-                session.commit()
-                print('Book updated!')
-                time.sleep(1.5)
-            elif sub_choice == '2':
-                session.delete(the_book)
-                session.commit()
-                print('Book deleted!')
-                time.sleep(1.5)
+                else:
+                    if id_choice in id_options:
+                        the_book = session.query(Book).filter(Book.id==id_choice).first()
+                        print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                                'Id','Title','Author','Published','Price'))
+                        print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
+                                the_book.id, the_book.title, the_book.author, the_book.published_date.strftime(
+                                "%b %d, %Y"), "$"+str(round(float(the_book.price/100),2))))
+                    else:
+                        print('Error: Please enter a valid book ID.')
+                sub_choice = submenu()
+                if sub_choice == '1':
+                    the_book.title = edit_check('Title', the_book.title)
+                    the_book.author = edit_check('Author', the_book.author)
+                    the_book.published_date = edit_check('Date', the_book.published_date)
+                    the_book.price = edit_check('Price', the_book.price)
+                    session.commit()
+                    print('Book updated!')
+                    time.sleep(1.5)
+                elif sub_choice == '2':
+                    session.delete(the_book)
+                    session.commit()
+                    print('Book deleted!')
+                    time.sleep(1.5)
+            elif choice == "2":
+                choice = input("Please enter a keyword: ")
+                view_books("%"+choice+"%")
+            else:
+                pass
+
+
         elif choice == '4':
-            #Analysis
-            pass
+            oldest_book = session.query(Book).order_by(Book.published_date).first()
+            print("Oldest book:\n", oldest_book)
+            newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
+            print("Newest book:\n", newest_book)
+            print("Python books:")
+            view_books("%Python%")
+
+            
+
+
         else:
-            print(" Goodbye! ^_^")
+            print("\nGoodbye! ^_^")
             app_running = False
 
 if __name__ == '__main__':
