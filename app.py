@@ -99,7 +99,6 @@ def clean_price(price_str):
         return final_price
 
 def view_books(like_this):
-    print('\n')
     print ("{:<5} {:<40} {:<25} {:<15} {:<6}".format(
         'Id','Title','Author','Published','Price'))
     for book in session.query(Book).filter(Book.title.like(like_this)):
@@ -137,8 +136,6 @@ def app():
             view_books("%")
         
         elif choice == '3':
-            # ####### Search by KEYWORD using view_books(input)
-            # ####### else id_options search by id.
             print("""\nHow would you like to search?
               \n1) By ID
               \r2) By keyword
@@ -187,13 +184,13 @@ def app():
 
         elif choice == '4':
             oldest_book = session.query(Book).order_by(Book.published_date).first()
-            print("Oldest book:\n", oldest_book)
             newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
-            print("Newest book:\n", newest_book)
-            print("Python books:")
+            print("\nOldest book:", oldest_book.title + ", published on", oldest_book.published_date)
+            # view_books(oldest_book.title)
+            print("Newest book:", newest_book.title + ", published on", newest_book.published_date)
+            # view_books(newest_book.title)
+            print("\nPython books: ")
             view_books("%Python%")
-
-            
 
 
         else:
