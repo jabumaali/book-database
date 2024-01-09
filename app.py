@@ -186,9 +186,9 @@ def app():
             oldest_book = session.query(Book).order_by(Book.published_date).first()
             newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
             print("\nOldest book:", oldest_book.title + ", published on", oldest_book.published_date)
-            # view_books(oldest_book.title)
+            view_books(oldest_book.title)
             print("Newest book:", newest_book.title + ", published on", newest_book.published_date)
-            # view_books(newest_book.title)
+            view_books(newest_book.title)
             print("\nPython books: ")
             view_books("%Python%")
 
@@ -201,6 +201,4 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
     add_csv()
     app()
-
-    # for book in session.query(Book):
-    #     print(book)
+    
